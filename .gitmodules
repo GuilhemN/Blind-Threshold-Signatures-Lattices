@@ -1,0 +1,3 @@
+[submodule "lazer"]
+	path = lazer
+	url = https://github.com/lazer-crypto/lazer.git
