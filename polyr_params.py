@@ -6,23 +6,8 @@ from math import log, lcm
 PLOVERSIGN_LOGN = 11
 PLOVERSIGN_N = 2**PLOVERSIGN_LOGN
 
-def find_q(logq: int, n: int) -> int:
-    """
-    Find a prime q such that
-	- q = 1 (mod 2*n)
-    - ceil(log(q)) = logq
-    """
-    base = 2 ** logq
-    k = 1
-    for q in range(base, 2**(logq - 1)+1, -1):
-        q = base - 2 ** k + 1
-        if q > 2 and isprime(q) and (q - 1) % (2 * n) == 0:
-            return q
-        k += 1
-    raise ValueError(f"Could not find a prime q with ceil(log(q)) = {logq} and q = 1 (mod 2*n)")
-
-PLOVERSIGN_Q1 = find_q(14, PLOVERSIGN_N)
-PLOVERSIGN_Q2 = find_q(47-14, PLOVERSIGN_N)
+PLOVERSIGN_Q1 = 65537
+PLOVERSIGN_Q2 = 3036983297
 print("PLOVERSIGN_Q1 =", PLOVERSIGN_Q1)
 print("PLOVERSIGN_Q2 =", PLOVERSIGN_Q2)
 

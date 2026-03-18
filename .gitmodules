@@ -1,3 +1,6 @@
 [submodule "lazer"]
 	path = lazer
 	url = https://github.com/lazer-crypto/lazer.git
+[submodule "scripts/estimator"]
+	path = scripts/estimator
+	url = https://github.com/malb/lattice-estimator.git

@@ -11,13 +11,13 @@ vname = "param"           # variable name
 
 
 deg   = 2048               # ring Rp degree d
-mod   = 105548820262913        # ring Rp modulus p
+mod   = 199034774335489        # ring Rp modulus p
 m,n   = 1,8
 dim   = (m,n)             # dimensions of A in Rp^(m,n)
 
 cutoff = 21
 Bcutoff = 2**(cutoff-1) * sqrt(deg*m*n)  # bound on the low bits of the witness
-B = 2**46.2
+B = 2**46.23
 Bproof = B / 2**cutoff  # bound on the high bits of the witness
 
 wpart = [ list(range(4)), list(range(4, 8)) ]  # partition of w : [w]

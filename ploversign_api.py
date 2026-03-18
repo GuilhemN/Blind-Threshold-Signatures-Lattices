@@ -126,7 +126,7 @@ class NIST_PloverSign(PloverSign):
 
 plover_128_1  = NIST_PloverSign(  bitsec=128, q=PLOVERSIGN_Q, logdivide=40, 
                 n=PLOVERSIGN_N,
-                sigma_sk=2**15, sigma_sx=2**37.5, sigma_ux=2, sigma_rnd=2**37.5, B=2**46.2)
+                sigma_sk=2**15, sigma_sx=2**37.5, sigma_ux=2, sigma_rnd=2**37.5, B=2**46.23)
 
 plover_all = [
     plover_128_1,
