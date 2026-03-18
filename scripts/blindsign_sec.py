@@ -47,7 +47,7 @@ class ThBlindSign:
     - key_recovery : Hint-MLWE reduction
     - blindness    : plain MLWE
     - forgery      : MSIS
-    - mlwe_enc     : MLWE for the encryption layer
+    - enc          : MLWE for the encryption-to-the-sky
     """
     name: str
     kappa: int          # Target bit-security level
@@ -61,7 +61,8 @@ class ThBlindSign:
     sigmarnd: int       # Gaussian std for randomness
     sigmaUx: int        # Gaussian std for key-blinding
     sigmaSx: float = field(init=False)   # Effective std after trapdoor sampling
-    sigmaUnif: float | None = None       # Smoothing std (computed if None)
+    sigmaenc: float     # Gaussian std used for encryption to the sky
+    sigmaUnif: float | None = None       # Statistically uniform std (computed if None)
     B22: float = field(init=False)       # Forgery bound
     fast: bool = True   # Use rough estimates
 
@@ -69,7 +70,9 @@ class ThBlindSign:
     key_recovery_bitsec: int = field(init=False)
     blindness_bitsec: int = field(init=False)
     forgery_bitsec: int = field(init=False)
+    enc_bitsec: int = field(init=False)
     comm_per_party: int = field(init=False)
+    enc_size: int = field(init=False)
 
     def __post_init__(self):
         self.__hardness__()
@@ -173,9 +176,30 @@ class ThBlindSign:
         self.forgery_bitsec = _bitsec(hardness_sis)
         print(f"  forgery_bitsec = {self.forgery_bitsec}")
 
+        # Parameters for encryption
+        Xs_enc = Gaussian(self.sigmaenc)
+        Xe_enc = Gaussian(self.sigmaenc)
+        instance_enc = LWEInstance(
+            n=self.n,
+            q=self.q,
+            Xs=Xs_enc,
+            Xe=Xe_enc,
+            m=self.n,
+            tag="encryption",
+        )
+        with contextlib.redirect_stdout(open(os.devnull, "w")):
+            hardness_enc = LWEEstimate(instance_enc)
+        self.enc_bitsec = _bitsec(hardness_enc)
+        print(f"  enc_bitsec  = {self.enc_bitsec}")
+
+        # upper bound on the error in the encryption-to-the-sky: we multiply the message to encrypt by a prime larger than this bound to ensure correct decryption 
+        minp = 2 * e**(1/4)*self.sigmaenc*sqrt(2*self.n) + e**(1/2) * self.sigmaenc * self.sigmaenc * 4 * self.n
+        print(f"minp=2^{log(minp,2)}")
+
     def __sizes__(self):
         logq = ceil(log(self.q, 2))
         self.comm_per_party = int((2 * self.kappa + 2 * self.n * logq) // 8)
+        self.enc_size = int((8 * self.n * logq) // 8)
 
     def summary(self):
         sep = "-" * 50
@@ -185,7 +209,9 @@ class ThBlindSign:
         print(f"  key_recovery : {self.key_recovery_bitsec} bits")
         print(f"  blindness    : {self.blindness_bitsec} bits")
         print(f"  forgery      : {self.forgery_bitsec} bits")
+        print(f"  encryption   : {self.enc_bitsec} bits")
         print(f"  comm_per_party: {self.comm_per_party} bytes")
+        print(f"  enc_size     : {self.enc_size} bytes")
         print(sep)
 
 
@@ -218,10 +244,12 @@ if __name__ == "__main__":
         sigmask=2**15,
         sigmaUx=2**8,
         sigmarnd=2**47,
+        sigmaenc=0.4,
         beta=2**49,
         ptilde=2**50,
         fast=True,
     )
+
     proved.summary()
 
     # Heuristic params
@@ -242,6 +270,7 @@ if __name__ == "__main__":
         sigmarnd=int(2**37.5),
         beta=int(2**40),
         sigmaUnif=4,
+        sigmaenc=2,
         ptilde=ptilde,
         fast=True,
     )
